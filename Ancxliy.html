@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terrain Textures Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .author {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .block-container {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #fafafa;
+        }
+        
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .block-title {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .remove-block {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .remove-block:hover {
+            background-color: #c0392b;
+        }
+        
+        .variation-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .variation-input {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        
+        .remove-variation {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .remove-variation:hover {
+            background-color: #c0392b;
+        }
+        
+        .add-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .add-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .json-container {
+            margin-top: 30px;
+        }
+        
+        .json-title {
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .json-output {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 20px;
+        }
+        
+        .download-btn, .copy-btn {
+            flex: 1;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            border: none;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .download-btn {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .download-btn:hover {
+            background-color: #27ae60;
+        }
+        
+        .copy-btn {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .copy-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #2ecc71;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Terrain Textures</h1>
+        <div class="author">By Ancxlily</div>
+        
+        <div class="form-group">
+            <label for="resourcePackName">Resource Pack Name</label>
+            <input type="text" id="resourcePackName" placeholder="Enter resource pack name" oninput="updateJson()">
+        </div>
+        
+        <div id="blocksContainer">
+            <!-- Blocks will be added here dynamically -->
+        </div>
+        
+        <button class="add-btn" id="addBlockBtn">+ Block</button>
+        
+        <div class="json-container">
+            <div class="json-title">terrain_textures.json</div>
+            <div class="json-output" id="jsonOutput"></div>
+        </div>
+        
+        <div class="button-container">
+            <button class="download-btn" id="downloadBtn">Download</button>
+            <button class="copy-btn" id="copyBtn">COPY TO CLIPBOARD</button>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">Copied to clipboard!</div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add initial block
+            addBlock();
+            
+            // Event listeners
+            document.getElementById('addBlockBtn').addEventListener('click', addBlock);
+            document.getElementById('downloadBtn').addEventListener('click', downloadJson);
+            document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
+            
+            // Initial JSON generation
+            updateJson();
+        });
+        
+        function addBlock() {
+            const blocksContainer = document.getElementById('blocksContainer');
+            const blockId = 'block_' + Date.now();
+            
+            const blockElement = document.createElement('div');
+            blockElement.className = 'block-container';
+            blockElement.id = blockId;
+            
+            blockElement.innerHTML = `
+                <div class="block-header">
+                    <div class="block-title">Block</div>
+                    <button class="remove-block" onclick="removeBlock('${blockId}')">Remove</button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="${blockId}_name">Nama Block</label>
+                    <input type="text" id="${blockId}_name" placeholder="Enter block name" oninput="updateJson()">
+                </div>
+                
+                <div class="variations-container" id="${blockId}_variations">
+                    <!-- Variations will be added here -->
+                </div>
+                
+                <button class="add-btn" onclick="addVariation('${blockId}')">+ Variations</button>
+            `;
+            
+            blocksContainer.appendChild(blockElement);
+            
+            // Add initial variation
+            addVariation(blockId);
+        }
+        
+        function removeBlock(blockId) {
+            const blockElement = document.getElementById(blockId);
+            blockElement.remove();
+            updateJson();
+        }
+        
+        function addVariation(blockId) {
+            const variationsContainer = document.getElementById(blockId + '_variations');
+            const variationId = 'variation_' + Date.now();
+            
+            const variationElement = document.createElement('div');
+            variationElement.className = 'variation-container';
+            variationElement.id = variationId;
+            
+            variationElement.innerHTML = `
+                <input type="text" id="${variationId}_path" class="variation-input" placeholder="Enter path" oninput="updateJson()">
+                <button class="remove-variation" onclick="removeVariation('${variationId}')">Remove</button>
+            `;
+            
+            variationsContainer.appendChild(variationElement);
+            updateJson();
+        }
+        
+        function removeVariation(variationId) {
+            const variationElement = document.getElementById(variationId);
+            variationElement.remove();
+            updateJson();
+        }
+        
+        function updateJson() {
+            const resourcePackName = document.getElementById('resourcePackName').value;
+            const blocksContainer = document.getElementById('blocksContainer');
+            const blockElements = blocksContainer.querySelectorAll('.block-container');
+            
+            const textureData = {};
+            
+            blockElements.forEach(blockElement => {
+                const blockId = blockElement.id;
+                const blockName = document.getElementById(blockId + '_name').value;
+                
+                if (!blockName) return;
+                
+                const variationsContainer = document.getElementById(blockId + '_variations');
+                const variationElements = variationsContainer.querySelectorAll('.variation-container');
+                
+                const variations = [];
+                
+                variationElements.forEach(variationElement => {
+                    const variationId = variationElement.id;
+                    const path = document.getElementById(variationId + '_path').value;
+                    
+                    if (path) {
+                        variations.push({ path: path });
+                    }
+                });
+                
+                if (variations.length > 0) {
+                    textureData[blockName] = {
+                        textures: {
+                            variations: variations
+                        }
+                    };
+                }
+            });
+            
+            const jsonOutput = {
+                resource_pack_name: resourcePackName,
+                texture_name: "atlas.terrain",
+                padding: 8,
+                num_mip_levels: 4,
+                texture_data: textureData
+            };
+            
+            document.getElementById('jsonOutput').textContent = JSON.stringify(jsonOutput, null, 2);
+        }
+        
+        function downloadJson() {
+            const jsonContent = document.getElementById('jsonOutput').textContent;
+            const blob = new Blob([jsonContent], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'terrain_textures.json';
+            document.body.appendChild(a);
+            a.click();
+            
+            // Clean up
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 0);
+        }
+        
+        function copyToClipboard() {
+            const jsonContent = document.getElementById('jsonOutput').textContent;
+            
+            navigator.clipboard.writeText(jsonContent)
+                .then(() => {
+                    showNotification('Copied to clipboard!');
+                })
+                .catch(err => {
+                    console.error('Failed to copy: ', err);
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = jsonContent;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    showNotification('Copied to clipboard!');
+                });
+        }
+        
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+  </html>
