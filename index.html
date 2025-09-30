@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terrain Textures Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #0D0D0D;
+        }
+        
+        .author {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #7f8c8d;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            color: #272727;
+            border-bottom: 2px solid #272727;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .checkbox-group input {
+            margin-right: 10px;
+        }
+        
+        .block-container {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #fafafa;
+        }
+        
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .block-title {
+            font-weight: 500;
+            color: #0D0D0D;
+        }
+        
+        .remove-block {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .remove-block:hover {
+            background-color: #DC0400;
+        }
+        
+        .variation-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .variation-input {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        
+        .remove-variation {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .remove-variation:hover {
+            background-color: #c0392b;
+        }
+        
+        .add-btn {
+            background-color: #272727;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .add-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .json-container {
+            margin-top: 30px;
+        }
+        
+        .json-title {
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: #0D0D0D;
+        }
+        
+        .json-output {
+            background-color: #0D0D0D;
+            color: #ECF0F1;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 20px;
+        }
+        
+        .download-btn, .copy-btn {
+            flex: 1;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            border: none;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .download-btn {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .download-btn:hover {
+            background-color: #27ae60;
+        }
+        
+        .copy-btn {
+            background-color: #272727;
+            color: white;
+        }
+        
+        .copy-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #2ecc71;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 1000;
+        }
+        
+        .variations-section {
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .variations-section.active {
+            display: block;
+        }
+        
+        .single-path-container {
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .single-path-container.active {
+            display: block;
+        }
+        
+        .path-prefix {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Terrain Textures Generator</h1>
+        <div class="author">By Ancxlily</div>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('terrain')">
+                <i class="fas fa-mountain"></i> Terrain Textures
+            </div>
+            <div class="tab" onclick="switchTab('blocks')">
+                <i class="fas fa-cube"></i> Blocks
+            </div>
+        </div>
+        
+        <div id="terrain-tab" class="tab-content active">
+            <div class="form-group">
+                <label for="resourcePackName">Resource Pack Name</label>
+                <input type="text" id="resourcePackName" placeholder="Enter resource pack name" oninput="updateJson()">
+            </div>
+            
+            <div id="blocksContainer">
+                <!-- Blocks will be added here dynamically -->
+            </div>
+            
+            <button class="add-btn" id="addBlockBtn">
+                <i class="fas fa-plus"></i> Block
+            </button>
+        </div>
+        
+        <div id="blocks-tab" class="tab-content">
+            <div id="blocksJsonContainer">
+                <!-- Blocks JSON will be added here dynamically -->
+            </div>
+            
+            <button class="add-btn" id="addBlockJsonBtn">
+                <i class="fas fa-plus"></i> Block
+            </button>
+        </div>
+        
+        <div class="json-container">
+            <div class="json-title" id="jsonTitle">terrain_textures.json</div>
+            <div class="json-output" id="jsonOutput"></div>
+        </div>
+        
+        <div class="button-container">
+            <button class="download-btn" id="downloadBtn">
+                <i class="fas fa-download"></i> Download
+            </button>
+            <button class="copy-btn" id="copyBtn">
+                <i class="fas fa-copy"></i> COPY TO CLIPBOARD
+            </button>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">Copied to clipboard!</div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add initial block for terrain textures
+            addBlock();
+            
+            // Add initial block for blocks.json
+            addBlockJson();
+            
+            // Event listeners
+            document.getElementById('addBlockBtn').addEventListener('click', addBlock);
+            document.getElementById('addBlockJsonBtn').addEventListener('click', addBlockJson);
+            document.getElementById('downloadBtn').addEventListener('click', downloadJson);
+            document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
+            
+            // Initial JSON generation
+            updateJson();
+        });
+        
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            if (tabName === 'terrain') {
+                document.getElementById('terrain-tab').classList.add('active');
+                document.getElementById('jsonTitle').textContent = 'terrain_textures.json';
+            } else {
+                document.getElementById('blocks-tab').classList.add('active');
+                document.getElementById('jsonTitle').textContent = 'blocks.json';
+            }
+            
+            updateJson();
+        }
+        
+        function addBlock() {
+            const blocksContainer = document.getElementById('blocksContainer');
+            const blockId = 'block_' + Date.now();
+            
+            const blockElement = document.createElement('div');
+            blockElement.className = 'block-container';
+            blockElement.id = blockId;
+            
+            blockElement.innerHTML = `
+                <div class="block-header">
+                    <div class="block-title">Block</div>
+                    <button class="remove-block" onclick="removeBlock('${blockId}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="${blockId}_name">Nama Block</label>
+                    <input type="text" id="${blockId}_name" placeholder="Enter block name" oninput="updateJson()">
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="${blockId}_enableVariations" onchange="toggleVariations('${blockId}')">
+                    <label for="${blockId}_enableVariations">Enable Variations</label>
+                </div>
+                
+                <div class="single-path-container" id="${blockId}_singlePath">
+                    <div class="form-group">
+                        <div class="path-prefix">Contoh: dirt</div>
+                        <label for="${blockId}_singlePathInput">Texture Name</label>
+                        <input type="text" id="${blockId}_singlePathInput" placeholder="Enter Name Texture" oninput="updateJson()">
+                    </div>
+                </div>
+                
+                <div class="variations-section" id="${blockId}_variationsSection">
+                    <div class="form-group">
+                        <div class="path-prefix">Contoh: dirt</div>
+                    </div>
+                    <div class="variations-container" id="${blockId}_variations">
+                        <!-- Variations will be added here -->
+                    </div>
+                    
+                    <button class="add-btn" onclick="addVariation('${blockId}')">
+                        <i class="fas fa-plus"></i> Variations
+                    </button>
+                </div>
+            `;
+            
+            blocksContainer.appendChild(blockElement);
+            
+            // Add initial variation
+            addVariation(blockId);
+            
+            // Set default state to single path
+            document.getElementById(blockId + '_singlePath').classList.add('active');
+            document.getElementById(blockId + '_variationsSection').classList.remove('active');
+        }
+        
+        function removeBlock(blockId) {
+            const blockElement = document.getElementById(blockId);
+            blockElement.remove();
+            updateJson();
+        }
+        
+        function toggleVariations(blockId) {
+            const variationsSection = document.getElementById(blockId + '_variationsSection');
+            const singlePathContainer = document.getElementById(blockId + '_singlePath');
+            const enableVariationsCheckbox = document.getElementById(blockId + '_enableVariations');
+            
+            if (enableVariationsCheckbox.checked) {
+                variationsSection.classList.add('active');
+                singlePathContainer.classList.remove('active');
+            } else {
+                variationsSection.classList.remove('active');
+                singlePathContainer.classList.add('active');
+            }
+            
+            updateJson();
+        }
+        
+        function addVariation(blockId) {
+            const variationsContainer = document.getElementById(blockId + '_variations');
+            const variationId = 'variation_' + Date.now();
+            
+            const variationElement = document.createElement('div');
+            variationElement.className = 'variation-container';
+            variationElement.id = variationId;
+            
+            variationElement.innerHTML = `
+                <input type="text" id="${variationId}_path" class="variation-input" placeholder="Enter texture file name (without extension)" oninput="updateJson()">
+                <button class="remove-variation" onclick="removeVariation('${variationId}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            
+            variationsContainer.appendChild(variationElement);
+            updateJson();
+        }
+        
+        function removeVariation(variationId) {
+            const variationElement = document.getElementById(variationId);
+            variationElement.remove();
+            updateJson();
+        }
+        
+        function addBlockJson() {
+            const blocksJsonContainer = document.getElementById('blocksJsonContainer');
+            const blockId = 'blockJson_' + Date.now();
+            
+            const blockElement = document.createElement('div');
+            blockElement.className = 'block-container';
+            blockElement.id = blockId;
+            
+            blockElement.innerHTML = `
+                <div class="block-header">
+                    <div class="block-title">Block</div>
+                    <button class="remove-block" onclick="removeBlockJson('${blockId}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="${blockId}_name">Block Name</label>
+                    <input type="text" id="${blockId}_name" placeholder="Enter block name" oninput="updateJson()">
+                </div>
+                
+                <div class="form-group">
+                    <label for="${blockId}_sound">Sound</label>
+                    <select id="${blockId}_sound" onchange="updateJson()">
+                        <option value="">Select sound</option>
+                        <option value="stone">stone</option>
+                        <option value="wood">wood</option>
+                        <option value="gravel">gravel</option>
+                        <option value="grass">grass</option>
+                        <option value="cloth">cloth</option>
+                        <option value="sand">sand</option>
+                        <option value="glass">glass</option>
+                        <option value="anvil">anvil</option>
+                        <option value="slime">slime</option>
+                        <option value="wool">wool</option>
+                        <option value="hay">hay</option>
+                        <option value="concrete">concrete</option>
+                        <option value="metal">metal</option>
+                        <option value="coral">coral</option>
+                        <option value="bamboo">bamboo</option>
+                        <option value="bamboo_sapling">bamboo_sapling</option>
+                        <option value="scaffolding">scaffolding</option>
+                        <option value="sweet_berry_bush">sweet_berry_bush</option>
+                        <option value="crop">crop</option>
+                        <option value="stem">stem</option>
+                        <option value="vine">vine</option>
+                        <option value="kelp">kelp</option>
+                        <option value="moss">moss</option>
+                        <option value="nylium">nylium</option>
+                        <option value="fungi">fungi</option>
+                        <option value="root">root</option>
+                        <option value="shroomlight">shroomlight</option>
+                        <option value="weeping_vines">weeping_vines</option>
+                        <option value="twisting_vines">twisting_vines</option>
+                        <option value="cave_vines">cave_vines</option>
+                        <option value="azalea">azalea</option>
+                        <option value="flowering_azalea">flowering_azalea</option>
+                        <option value="spore_blossom">spore_blossom</option>
+                        <option value="moss_carpet">moss_carpet</option>
+                        <option value="glow_lichen">glow_lichen</option>
+                        <option value="calcite">calcite</option>
+                        <option value="tuff">tuff</option>
+                        <option value="dripstone_block">dripstone_block</option>
+                        <option value="pointed_dripstone">pointed_dripstone</option>
+                        <option value="copper">copper</option>
+                        <option value="cut_copper">cut_copper</option>
+                        <option value="waxed_copper">waxed_copper</option>
+                        <option value="waxed_cut_copper">waxed_cut_copper</option>
+                        <option value="oxidized_copper">oxidized_copper</option>
+                        <option value="oxidized_cut_copper">oxidized_cut_copper</option>
+                        <option value="waxed_oxidized_copper">waxed_oxidized_copper</option>
+                        <option value="waxed_oxidized_cut_copper">waxed_oxidized_cut_copper</option>
+                        <option value="weathered_copper">weathered_copper</option>
+                        <option value="weathered_cut_copper">weathered_cut_copper</option>
+                        <option value="waxed_weathered_copper">waxed_weathered_copper</option>
+                        <option value="waxed_weathered_cut_copper">waxed_weathered_cut_copper</option>
+                        <option value="amethyst">amethyst</option>
+                        <option value="budding_amethyst">budding_amethyst</option>
+                        <option value="tnt">tnt</option>
+                        <option value="ancient_debris">ancient_debris</option>
+                        <option value="netherite">netherite</option>
+                        <option value="nether_gold_ore">nether_gold_ore</option>
+                        <option value="nether_sprouts">nether_sprouts</option>
+                        <option value="soul_soil">soul_soil</option>
+                        <option value="soul_fire">soul_fire</option>
+                        <option value="basalt">basalt</option>
+                        <option value="blackstone">blackstone</option>
+                        <option value="netherrack">netherrack</option>
+                        <option value="crimson_nylium">crimson_nylium</option>
+                        <option value="warped_nylium">warped_nylium</option>
+                        <option value="nether_wart_block">nether_wart_block</option>
+                        <option value="warped_wart_block">warped_wart_block</option>
+                        <option value="shroomlight">shroomlight</option>
+                        <option value="soul_sand">soul_sand</option>
+                        <option value="soul_soil">soul_soil</option>
+                        <option value="magma">magma</option>
+                        <option value="nether_brick">nether_brick</option>
+                        <option value="red_nether_brick">red_nether_brick</option>
+                        <option value="bone_block">bone_block</option>
+                        <option value="nether_quartz_ore">nether_quartz_ore</option>
+                        <option value="nether_bricks">nether_bricks</option>
+                        <option value="chiseled_nether_bricks">chiseled_nether_bricks</option>
+                        <option value="cracked_nether_bricks">cracked_nether_bricks</option>
+                        <option value="quartz_bricks">quartz_bricks</option>
+                        <option value="smooth_quartz">smooth_quartz</option>
+                        <option value="red_sandstone">red_sandstone</option>
+                        <option value="cut_red_sandstone">cut_red_sandstone</option>
+                        <option value="chiseled_red_sandstone">chiseled_red_sandstone</option>
+                        <option value="smooth_red_sandstone">smooth_red_sandstone</option>
+                        <option value="sandstone">sandstone</option>
+                        <option value="cut_sandstone">cut_sandstone</option>
+                        <option value="chiseled_sandstone">chiseled_sandstone</option>
+                        <option value="smooth_sandstone">smooth_sandstone</option>
+                        <option value="prismarine">prismarine</option>
+                        <option value="prismarine_bricks">prismarine_bricks</option>
+                        <option value="dark_prismarine">dark_prismarine</option>
+                        <option value="sea_lantern">sea_lantern</option>
+                        <option value="wet_sponge">wet_sponge</option>
+                        <option value="dry_sponge">dry_sponge</option>
+                        <option value="ice">ice</option>
+                        <option value="packed_ice">packed_ice</option>
+                        <option value="blue_ice">blue_ice</option>
+                        <option value="snow">snow</option>
+                        <option value="snow_block">snow_block</option>
+                        <option value="powder_snow">powder_snow</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="${blockId}_blockshape">Block Shape</label>
+                    <select id="${blockId}_blockshape" onchange="updateJson()">
+                        <option value="">Select block shape</option>
+                        <option value="invisible">invisible</option>
+                        <option value="block">block</option>
+                        <option value="cross_texture">cross_texture</option>
+                        <option value="torch">torch</option>
+                        <option value="fire">fire</option>
+                        <option value="water">water</option>
+                        <option value="red_dust">red_dust</option>
+                        <option value="rows">rows</option>
+                        <option value="door">door</option>
+                        <option value="ladder">ladder</option>
+                        <option value="rail">rail</option>
+                        <option value="stairs">stairs</option>
+                        <option value="fence">fence</option>
+                        <option value="lever">lever</option>
+                        <option value="cactus">cactus</option>
+                        <option value="bed">bed</option>
+                        <option value="diode">diode</option>
+                        <option value="iron_fence">iron_fence</option>
+                        <option value="stem">stem</option>
+                        <option value="vine">vine</option>
+                        <option value="fence_gate">fence_gate</option>
+                        <option value="chest">chest</option>
+                        <option value="lilypad">lilypad</option>
+                        <option value="brewing_stand">brewing_stand</option>
+                        <option value="portal_frame">portal_frame</option>
+                        <option value="cocoa">cocoa</option>
+                        <option value="tree">tree</option>
+                        <option value="cobblestone_wall">cobblestone_wall</option>
+                        <option value="double_plant">double_plant</option>
+                        <option value="flower_pot">flower_pot</option>
+                        <option value="anvil">anvil</option>
+                        <option value="dragon_egg">dragon_egg</option>
+                        <option value="structure_void">structure_void</option>
+                        <option value="block_half">block_half</option>
+                        <option value="top_snow">top_snow</option>
+                        <option value="tripwire">tripwire</option>
+                        <option value="tripwire_hook">tripwire_hook</option>
+                        <option value="cauldron">cauldron</option>
+                        <option value="repeater">repeater</option>
+                        <option value="comparator">comparator</option>
+                        <option value="hopper">hopper</option>
+                        <option value="slime_block">slime_block</option>
+                        <option value="piston">piston</option>
+                        <option value="beacon">beacon</option>
+                        <option value="chorus_plant">chorus_plant</option>
+                        <option value="chorus_flower">chorus_flower</option>
+                        <option value="end_portal">end_portal</option>
+                        <option value="end_rod">end_rod</option>
+                        <option value="skull">skull</option>
+                        <option value="facing_block">facing_block</option>
+                        <option value="command_block">command_block</option>
+                        <option value="terracotta">terracotta</option>
+                        <option value="double_side_fence">double_side_fence</option>
+                        <option value="frame">frame</option>
+                        <option value="shulker_box">shulker_box</option>
+                        <option value="doublesided_cross_texture">doublesided_cross_texture</option>
+                        <option value="doublesided_double_plant">doublesided_double_plant</option>
+                        <option value="doublesided_rows">doublesided_rows</option>
+                        <option value="element_block">element_block</option>
+                        <option value="chemistry_table">chemistry_table</option>
+                        <option value="coral_fan">coral_fan</option>
+                        <option value="seagrass">seagrass</option>
+                        <option value="kelp">kelp</option>
+                        <option value="trapdoor">trapdoor</option>
+                        <option value="sea_pickle">sea_pickle</option>
+                        <option value="conduit">conduit</option>
+                        <option value="turtle_egg">turtle_egg</option>
+                        <option value="bubble_column">bubble_column</option>
+                        <option value="barrier">barrier</option>
+                        <option value="sign">sign</option>
+                        <option value="bamboo">bamboo</option>
+                        <option value="bamboo_sapling">bamboo_sapling</option>
+                        <option value="scaffolding">scaffolding</option>
+                        <option value="grindstone">grindstone</option>
+                        <option value="bell">bell</option>
+                        <option value="lantern">lantern</option>
+                        <option value="campfire">campfire</option>
+                        <option value="lectern">lectern</option>
+                        <option value="sweet_berry_bush">sweet_berry_bush</option>
+                        <option value="cartography_table">cartography_table</option>
+                        <option value="stonecutter_block">stonecutter_block</option>
+                        <option value="chain">chain</option>
+                        <option value="sculk_sensor">sculk_sensor</option>
+                        <option value="azalea">azalea</option>
+                        <option value="flowering_azalea">flowering_azalea</option>
+                        <option value="glow_frame">glow_frame</option>
+                        <option value="glow_lichen">glow_lichen</option>
+                        <option value="redstone_wire">redstone_wire</option>
+                    </select>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="${blockId}_isotropic" onchange="updateJson()">
+                    <label for="${blockId}_isotropic">Isotropic</label>
+                </div>
+            `;
+            
+            blocksJsonContainer.appendChild(blockElement);
+            updateJson();
+        }
+        
+        function removeBlockJson(blockId) {
+            const blockElement = document.getElementById(blockId);
+            blockElement.remove();
+            updateJson();
+        }
+        
+        function updateJson() {
+            const activeTab = document.querySelector('.tab.active').textContent;
+            
+            if (activeTab.includes('Terrain')) {
+                updateTerrainJson();
+            } else {
+                updateBlocksJson();
+            }
+        }
+        
+        function updateTerrainJson() {
+            const resourcePackName = document.getElementById('resourcePackName').value;
+            const blocksContainer = document.getElementById('blocksContainer');
+            const blockElements = blocksContainer.querySelectorAll('.block-container');
+            
+            const textureData = {};
+            
+            blockElements.forEach(blockElement => {
+                const blockId = blockElement.id;
+                const blockName = document.getElementById(blockId + '_name').value;
+                
+                if (!blockName) return;
+                
+                const enableVariations = document.getElementById(blockId + '_enableVariations').checked;
+                
+                if (enableVariations) {
+                    // Use variations format
+                    const variationsContainer = document.getElementById(blockId + '_variations');
+                    const variationElements = variationsContainer.querySelectorAll('.variation-container');
+                    
+                    const variations = [];
+                    
+                    variationElements.forEach(variationElement => {
+                        const variationId = variationElement.id;
+                        const path = document.getElementById(variationId + '_path').value;
+                        
+                        if (path) {
+                            // Add prefix "textures/blocks/" to the path
+                            variations.push({ path: "textures/blocks/" + path });
+                        }
+                    });
+                    
+                    if (variations.length > 0) {
+                        textureData[blockName] = {
+                            textures: {
+                                variations: variations
+                            }
+                        };
+                    }
+                } else {
+                    // Use single path format
+                    const singlePath = document.getElementById(blockId + '_singlePathInput').value;
+                    
+                    if (singlePath) {
+                        // Add prefix "textures/blocks/" to the path
+                        textureData[blockName] = {
+                            textures: "textures/blocks/" + singlePath
+                        };
+                    }
+                }
+            });
+            
+            const jsonOutput = {
+                resource_pack_name: resourcePackName,
+                texture_name: "atlas.terrain",
+                padding: 8,
+                num_mip_levels: 4,
+                texture_data: textureData
+            };
+            
+            document.getElementById('jsonOutput').textContent = JSON.stringify(jsonOutput, null, 2);
+        }
+        
+        function updateBlocksJson() {
+            const blocksJsonContainer = document.getElementById('blocksJsonContainer');
+            const blockElements = blocksJsonContainer.querySelectorAll('.block-container');
+            
+            const blocksData = {};
+            
+            blockElements.forEach(blockElement => {
+                const blockId = blockElement.id;
+                const blockName = document.getElementById(blockId + '_name').value;
+                
+                if (!blockName) return;
+                
+                const sound = document.getElementById(blockId + '_sound').value;
+                const blockShape = document.getElementById(blockId + '_blockshape').value;
+                const isotropic = document.getElementById(blockId + '_isotropic').checked;
+                
+                const blockData = {};
+                
+                // Check for directional textures automatically
+                const terrainContainer = document.getElementById('blocksContainer');
+                const terrainBlocks = terrainContainer.querySelectorAll('.block-container');
+                
+                let topTexture = "";
+                let sideTexture = "";
+                let bottomTexture = "";
+                let eastTexture = "";
+                let northTexture = "";
+                let westTexture = "";
+                let southTexture = "";
+                let hasVerticalDirectionalTextures = false;
+                let hasHorizontalDirectionalTextures = false;
+                
+                terrainBlocks.forEach(terrainBlock => {
+                    const terrainBlockId = terrainBlock.id;
+                    const terrainBlockName = document.getElementById(terrainBlockId + '_name').value;
+                    
+                    // Check for vertical directional textures (up, side, down)
+                    if (terrainBlockName.includes('_top')) {
+                        topTexture = terrainBlockName;
+                        hasVerticalDirectionalTextures = true;
+                    } else if (terrainBlockName.includes('_side')) {
+                        sideTexture = terrainBlockName;
+                        hasVerticalDirectionalTextures = true;
+                    } else if (terrainBlockName.includes('_bottom')) {
+                        bottomTexture = terrainBlockName;
+                        hasVerticalDirectionalTextures = true;
+                    }
+                    
+                    // Check for horizontal directional textures (east, north, west, south)
+                    if (terrainBlockName.includes('_east')) {
+                        eastTexture = terrainBlockName;
+                        hasHorizontalDirectionalTextures = true;
+                    } else if (terrainBlockName.includes('_north')) {
+                        northTexture = terrainBlockName;
+                        hasHorizontalDirectionalTextures = true;
+                    } else if (terrainBlockName.includes('_west')) {
+                        westTexture = terrainBlockName;
+                        hasHorizontalDirectionalTextures = true;
+                    } else if (terrainBlockName.includes('_south')) {
+                        southTexture = terrainBlockName;
+                        hasHorizontalDirectionalTextures = true;
+                    }
+                });
+                
+                // Determine which directional format to use
+                if (hasVerticalDirectionalTextures) {
+                    blockData.textures = {};
+                    if (topTexture) blockData.textures.up = topTexture;
+                    if (sideTexture) blockData.textures.side = sideTexture;
+                    if (bottomTexture) blockData.textures.down = bottomTexture;
+                } else if (hasHorizontalDirectionalTextures) {
+                    blockData.textures = {};
+                    if (eastTexture) blockData.textures.east = eastTexture;
+                    if (northTexture) blockData.textures.north = northTexture;
+                    if (westTexture) blockData.textures.west = westTexture;
+                    if (southTexture) blockData.textures.south = southTexture;
+                } else {
+                    // Look for a matching block in terrain textures
+                    let matchingTexture = "";
+                    
+                    terrainBlocks.forEach(terrainBlock => {
+                        const terrainBlockId = terrainBlock.id;
+                        const terrainBlockName = document.getElementById(terrainBlockId + '_name').value;
+                        
+                        // Check if the terrain block name matches the current block name
+                        if (terrainBlockName === blockName) {
+                            matchingTexture = terrainBlockName;
+                        }
+                    });
+                    
+                    // If no exact match, try to find a block that starts with the current block name
+                    if (!matchingTexture) {
+                        terrainBlocks.forEach(terrainBlock => {
+                            const terrainBlockId = terrainBlock.id;
+                            const terrainBlockName = document.getElementById(terrainBlockId + '_name').value;
+                            
+                            if (terrainBlockName.startsWith(blockName)) {
+                                matchingTexture = terrainBlockName;
+                            }
+                        });
+                    }
+                    
+                    // Use the matching texture or fall back to the block name
+                    blockData.textures = matchingTexture || blockName;
+                }
+                
+                // Add sound if provided
+                if (sound) {
+                    blockData.sound = sound;
+                }
+                
+                // Add block shape if selected
+                if (blockShape) {
+                    blockData.blockshape = blockShape;
+                }
+                
+                // Add isotropic if checked
+                if (isotropic) {
+                    blockData.isotropic = true;
+                }
+                
+                blocksData[blockName] = blockData;
+            });
+            
+            document.getElementById('jsonOutput').textContent = JSON.stringify(blocksData, null, 2);
+        }
+        
+        function downloadJson() {
+            const jsonContent = document.getElementById('jsonOutput').textContent;
+            const activeTab = document.querySelector('.tab.active').textContent;
+            
+            let filename = '';
+            if (activeTab.includes('Terrain')) {
+                filename = 'terrain_textures.json';
+            } else {
+                filename = 'blocks.json';
+            }
+            
+            const blob = new Blob([jsonContent], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            
+            // Clean up
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 0);
+        }
+        
+        function copyToClipboard() {
+            const jsonContent = document.getElementById('jsonOutput').textContent;
+            
+            navigator.clipboard.writeText(jsonContent)
+                .then(() => {
+                    showNotification('Copied to clipboard!');
+                })
+                .catch(err => {
+                    console.error('Failed to copy: ', err);
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = jsonContent;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    showNotification('Copied to clipboard!');
+                });
+        }
+        
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+  </html>
